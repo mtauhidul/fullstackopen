@@ -13,6 +13,18 @@ const App = () => {
   ];
 
   const [selected, setSelected] = useState(0);
+  const [vote, setVote] = useState([]);
+
+  if (!vote.length) {
+    (function voteInitialize() {
+      const votes = [...vote];
+      for (let anecdote of anecdotes) {
+        votes.push(0);
+        console.log(votes);
+      }
+      setVote(votes);
+    })();
+  }
 
   const change = () => {
     const min = 0;
@@ -20,10 +32,37 @@ const App = () => {
     setSelected(Math.floor(Math.random() * (max - min + 1)) + min);
   };
 
+  const updateVote = () => {
+    const votes = [...vote];
+    votes[selected] += 1;
+    console.log(votes);
+    setVote(votes);
+  };
+
+  function getRandomMaxIndex(arr) {
+    let maxValue = Math.max(...arr);
+    let maxIndices = [];
+    arr.forEach((value, index) => {
+      if (value === maxValue) {
+        maxIndices.push(index);
+      }
+    });
+    let randomIndex = Math.floor(Math.random() * maxIndices.length);
+    return maxIndices[randomIndex];
+  }
+
+  let randomMaxIndex = getRandomMaxIndex(vote);
+
   return (
     <>
+      <h1>Anecdote of the day</h1>
       <div>{anecdotes[selected]}</div>
+      <p>has {vote[selected] || 0} votes</p>
+      <button onClick={updateVote}>vote</button>
       <button onClick={change}>next anecdote</button>
+      <h1>Anecdote with most votes</h1>
+      <p>{anecdotes[randomMaxIndex]}</p>
+      <p>has {vote[randomMaxIndex]} votes</p>
     </>
   );
 };
