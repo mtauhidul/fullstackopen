@@ -1,58 +1,8 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
-
-const Filter = ({ filter, filterChangeHandler }) => {
-  return (
-    <>
-      filter shown with <input value={filter} onChange={filterChangeHandler} />
-    </>
-  );
-};
-
-const Form = ({ submitHandler, newName, newNumber, onChangeHandler }) => {
-  return (
-    <>
-      <h2>add a new</h2>
-      <form onSubmit={submitHandler}>
-        <div>
-          name:{" "}
-          <input
-            value={newName}
-            onChange={(event) => onChangeHandler(event, "name")}
-          />
-          <br />
-          number:{" "}
-          <input
-            value={newNumber}
-            onChange={(event) => onChangeHandler(event, "number")}
-          />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-    </>
-  );
-};
-
-const Persons = ({ shownPersons }) => {
-  return (
-    <>
-      <h2>Numbers</h2>
-      {shownPersons.map((person) => (
-        <Person key={person.id} person={person} />
-      ))}
-    </>
-  );
-};
-
-const Person = ({ person }) => {
-  return (
-    <p>
-      {person.name} {person.number}
-    </p>
-  );
-};
+import Filter from "./components/Filter";
+import Form from "./components/Form";
+import Persons from "./components/Persons";
+import personService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -61,17 +11,15 @@ const App = () => {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3001/persons")
-      .then((response) => setPersons(response.data));
+    personService.getAll().then((initialPersons) => setPersons(initialPersons));
   }, []);
 
   const onChangeHandler = (event, type) => {
-    if (type == "name") {
+    if (type === "name") {
       setNewName(event.target.value);
     }
 
-    if (type == "number") {
+    if (type === "number") {
       setNewNumber(event.target.value);
     }
   };
@@ -79,20 +27,46 @@ const App = () => {
   const submitHandler = (event) => {
     event.preventDefault();
 
-    const isDuplicate = persons.find((person) => person.name == newName);
+    const isDuplicate = persons.find((person) => person.name === newName);
 
     if (!isDuplicate) {
       const personObject = {
         name: newName,
         number: newNumber,
-        id: persons.length + 1,
       };
 
-      setPersons(persons.concat(personObject));
-      setNewName("");
-      setNewNumber("");
+      personService
+        .createPerson(personObject)
+        .then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
     } else {
-      alert(`Name "${newName}" already exists!`);
+      const decision = window.confirm(
+        `Name "${newName}" already exists! Do you want to replace new number with the old number?`
+      );
+
+      if (decision) {
+        const updatingPerson = { ...isDuplicate, number: newNumber };
+        personService
+          .updatePerson(updatingPerson.id, updatingPerson)
+          .then((returnedPerson) => {
+            setPersons(
+              persons.map((person) =>
+                person.id !== returnedPerson.id ? person : returnedPerson
+              )
+            );
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch((error) => {
+            console.log(error.message);
+          });
+      }
     }
   };
 
@@ -103,8 +77,21 @@ const App = () => {
   const shownPersons = !filter
     ? persons
     : persons.filter((person) =>
-        person.name.toLowerCase().includes(filter.toLocaleLowerCase())
+        person.name.toLowerCase().includes(filter.toLowerCase())
       );
+
+  const remove = (id) => {
+    if (window.confirm("Are you sure you want to delete this note?")) {
+      personService
+        .deletePerson(id)
+        .then(() => {
+          setPersons(persons.filter((person) => person.id !== id));
+        })
+        .catch((error) => {
+          console.log(error.message);
+        });
+    }
+  };
 
   return (
     <div>
@@ -116,7 +103,7 @@ const App = () => {
         newNumber={newNumber}
         onChangeHandler={onChangeHandler}
       />
-      <Persons shownPersons={shownPersons} />
+      <Persons shownPersons={shownPersons} remove={remove} />
     </div>
   );
 };
