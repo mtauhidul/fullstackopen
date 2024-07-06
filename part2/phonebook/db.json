@@ -1,24 +1,9 @@
 {
   "persons": [
     {
-      "id": "cea9",
-      "name": "John Smith",
-      "number": "31242342"
-    },
-    {
       "id": "461e",
       "name": "Arto Hellas",
       "number": "732846324575"
-    },
-    {
-      "id": "7388",
-      "name": "Mir Tauhid",
-      "number": "76345343998"
-    },
-    {
-      "id": "4e3b",
-      "name": "Hail Mugger",
-      "number": "76247523576238"
     }
   ]
 }

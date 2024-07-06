@@ -7,8 +7,8 @@ function getAll() {
     .get(baseURL)
     .then((response) => response.data)
     .catch((error) => {
-      console.error("Error creating person:", error);
-      return Promise.reject(error);
+      console.error("Error fetching persons:", error);
+      throw error; // Rethrow the error
     });
 }
 
@@ -18,7 +18,7 @@ function createPerson(person) {
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error creating person:", error);
-      return Promise.reject(error);
+      throw error; // Rethrow the error
     });
 }
 
@@ -28,7 +28,7 @@ function updatePerson(id, person) {
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error updating person:", error);
-      return Promise.reject(error);
+      throw error; // Rethrow the error
     });
 }
 
@@ -38,7 +38,7 @@ function deletePerson(id) {
     .then((response) => response.data)
     .catch((error) => {
       console.error("Error deleting person:", error);
-      return Promise.reject(error);
+      throw error; // Rethrow the error
     });
 }
 

@@ -5,14 +5,6 @@ const Persons = ({ shownPersons, remove }) => {
     <>
       <h2>Numbers</h2>
       {shownPersons.map((person) => {
-        if (!person) {
-          console.error(
-            "Found undefined person in shownPersons:",
-            shownPersons
-          );
-          return null;
-        }
-        console.log("person =>>", person.id);
         return <Person key={person.id} person={person} remove={remove} />;
       })}
     </>

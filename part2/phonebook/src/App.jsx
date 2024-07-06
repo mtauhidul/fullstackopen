@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Filter from "./components/Filter";
 import Form from "./components/Form";
+import Notification from "./components/Notification";
 import Persons from "./components/Persons";
 import personService from "./services/persons";
 
@@ -9,6 +10,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [filter, setFilter] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => setPersons(initialPersons));
@@ -41,9 +44,13 @@ const App = () => {
           setPersons(persons.concat(returnedPerson));
           setNewName("");
           setNewNumber("");
+          setMessage("Person created successfully!");
+          setTimeout(() => setMessage(""), 5000);
         })
         .catch((error) => {
           console.log(error.message);
+          setError("Something went wrong! Try again.");
+          setTimeout(() => setError(""), 5000);
         });
     } else {
       const decision = window.confirm(
@@ -62,9 +69,13 @@ const App = () => {
             );
             setNewName("");
             setNewNumber("");
+            setMessage("Number updated successfully!");
+            setTimeout(() => setMessage(""), 5000);
           })
           .catch((error) => {
             console.log(error.message);
+            setError(`Person ${newName} already removed from server!`);
+            setTimeout(() => setError(""), 5000);
           });
       }
     }
@@ -86,9 +97,13 @@ const App = () => {
         .deletePerson(id)
         .then(() => {
           setPersons(persons.filter((person) => person.id !== id));
+          setMessage("Person deleted successfully!");
+          setTimeout(() => setMessage(""), 5000);
         })
         .catch((error) => {
           console.log(error.message);
+          setError(`Person not available on server!`);
+          setTimeout(() => setError(""), 5000);
         });
     }
   };
@@ -97,6 +112,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Filter filter={filter} filterChangeHandler={filterChangeHandler} />
+      {message && <Notification message={message} type="success" />}
+      {error && <Notification message={error} type="error" />}
       <Form
         submitHandler={submitHandler}
         newName={newName}
