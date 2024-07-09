@@ -75,7 +75,7 @@ const App = () => {
           })
           .catch((error) => {
             console.log(error.message);
-            setError(`Person ${newName} already removed from server!`);
+            setError(`Person ${newName} Something went wrong!`);
             setTimeout(() => setError(""), 5000);
           });
       }
