@@ -49,9 +49,11 @@ const App = () => {
           setTimeout(() => setMessage(""), 5000);
         })
         .catch((error) => {
-          console.log(error.message);
-          setError("Something went wrong! Try again.");
-          setTimeout(() => setError(""), 5000);
+          console.log(error.response);
+          if (error.response.status == 400) {
+            setError(error.response.data.error);
+            setTimeout(() => setError(""), 5000);
+          }
         });
     } else {
       const decision = window.confirm(
