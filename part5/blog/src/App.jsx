@@ -28,30 +28,36 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
+    const fetchBlogs = async () => {
+      try {
+        const blogs = await blogService.getAll();
+        setBlogs(blogs);
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+      }
+    };
+    fetchBlogs();
   }, []);
 
   const loginHandler = async (event) => {
     event.preventDefault();
 
     try {
-      const credentials = {
-        username,
-        password,
-      };
+      const credentials = { username, password };
       const response = await loginService.login(credentials);
-      setUser(response.data);
+      const loggedUser = response.data;
+
+      setUser(loggedUser);
       setUsername("");
       setPassword("");
 
-      blogService.setToken(response.data.token);
-
+      blogService.setToken(loggedUser.token);
       window.localStorage.setItem(
         "loggedInBlogUser",
-        JSON.stringify(response.data)
+        JSON.stringify(loggedUser)
       );
     } catch (error) {
-      console.log(error.message);
+      console.error("Error logging in:", error);
     }
   };
 
@@ -63,20 +69,24 @@ const App = () => {
   const createNewBlog = async (event) => {
     event.preventDefault();
 
-    const blogObject = { ...newBlog, userId: user.id };
-
-    const savedBlog = await blogService.create(blogObject);
-    setBlogs(blogs.concat(savedBlog));
+    try {
+      const blogObject = { ...newBlog, userId: user.id };
+      const savedBlog = await blogService.create(blogObject);
+      setBlogs(blogs.concat(savedBlog));
+      setNewBlog({ title: "", author: "", url: "" });
+    } catch (error) {
+      console.error("Error creating blog:", error);
+    }
   };
 
   return (
     <div>
-      {user && (
+      {user ? (
         <>
-          <h2>blogs</h2>
+          <h2>Blogs</h2>
           <p>
             {user.name} logged in{" "}
-            <button onClick={logoutHandler}>logout</button>
+            <button onClick={logoutHandler}>Logout</button>
           </p>
           <BlogForm
             createNewBlog={createNewBlog}
@@ -88,8 +98,7 @@ const App = () => {
             <Blog key={blog.id} blog={blog} />
           ))}
         </>
-      )}
-      {!user && (
+      ) : (
         <LoginForm
           loginHandler={loginHandler}
           username={username}
