@@ -12,11 +12,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [newBlog, setNewBlog] = useState({
-    title: "",
-    author: "",
-    url: "",
-  });
+
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const blogFormRef = useRef();
@@ -36,7 +32,7 @@ const App = () => {
     const fetchBlogs = async () => {
       try {
         const blogs = await blogService.getAll();
-        setBlogs(blogs);
+        setBlogs(blogs.sort((a, b) => b.likes - a.likes));
       } catch (error) {
         console.error("Error fetching blogs:", error);
       }
@@ -78,14 +74,12 @@ const App = () => {
     setUser(null);
   };
 
-  const createNewBlog = async (event) => {
-    event.preventDefault();
+  const createNewBlog = async (newBlog) => {
     blogFormRef.current.toggleVisibility();
     try {
       const blogObject = { ...newBlog, userId: user.id };
       const savedBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(savedBlog));
-      setNewBlog({ title: "", author: "", url: "" });
 
       setSuccessMessage(
         `Successfully created ${savedBlog.title} by ${savedBlog.author}`
@@ -95,6 +89,43 @@ const App = () => {
       console.error("Error creating blog:", error);
       setErrorMessage(`Error: ${error.message}`);
       setTimeout(() => setErrorMessage(""), 3000);
+    }
+  };
+
+  const likesHandler = async (updatingBlog) => {
+    try {
+      const updatedBlog = { ...updatingBlog, likes: updatingBlog.likes + 1 };
+      const response = await blogService.update(updatedBlog, updatedBlog.id);
+
+      const modifiedBlog = { ...updatingBlog, likes: response.likes };
+
+      setBlogs(
+        blogs.map((blog) => (blog.id === updatingBlog.id ? modifiedBlog : blog))
+      );
+    } catch (error) {
+      console.error("Error updating likes:", error);
+    }
+  };
+
+  const deleteHandler = async (blog) => {
+    const isConfirmed = window.confirm(
+      `Are you sure you want to remove "${blog.title}" by ${blog.author}?`
+    );
+
+    if (isConfirmed) {
+      try {
+        await blogService.remove(blog.id);
+        setBlogs(blogs.filter((b) => b.id !== blog.id));
+
+        setSuccessMessage(
+          `Successfully deleted "${blog.title}" by ${blog.author}`
+        );
+        setTimeout(() => setSuccessMessage(""), 3000);
+      } catch (error) {
+        console.error("Error deleting blog:", error);
+        setErrorMessage(`Error: ${error.message}`);
+        setTimeout(() => setErrorMessage(""), 3000);
+      }
     }
   };
 
@@ -117,16 +148,17 @@ const App = () => {
             buttonLabelHide="cancel creating new blog"
             ref={blogFormRef}
           >
-            <BlogForm
-              createNewBlog={createNewBlog}
-              newBlog={newBlog}
-              setNewBlog={setNewBlog}
-            />
+            <BlogForm createNewBlog={createNewBlog} />
           </Togglable>
 
           <br />
           {blogs.map((blog) => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog
+              key={blog.id}
+              blog={blog}
+              likesHandler={likesHandler}
+              deleteHandler={deleteHandler}
+            />
           ))}
         </>
       ) : (

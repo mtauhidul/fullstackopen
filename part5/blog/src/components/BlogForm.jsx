@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 
-export default function BlogForm({ createNewBlog, newBlog, setNewBlog }) {
+export default function BlogForm({ createNewBlog }) {
+  const [newBlog, setNewBlog] = useState({
+    title: "",
+    author: "",
+    url: "",
+  });
+
+  const formHandler = (event) => {
+    event.preventDefault();
+    createNewBlog(newBlog);
+  };
+
   return (
     <div>
       <h2>Create new blog</h2>
-      <form onSubmit={createNewBlog}>
+      <form onSubmit={formHandler}>
         title
         <input
           type="text"
