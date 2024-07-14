@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
+import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
@@ -15,6 +16,8 @@ const App = () => {
     author: "",
     url: "",
   });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedInBlogUser");
@@ -44,20 +47,27 @@ const App = () => {
 
     try {
       const credentials = { username, password };
-      const response = await loginService.login(credentials);
-      const loggedUser = response.data;
+      const loggedUser = await loginService.login(credentials);
 
       setUser(loggedUser);
       setUsername("");
       setPassword("");
+
+      console.log(loggedUser);
 
       blogService.setToken(loggedUser.token);
       window.localStorage.setItem(
         "loggedInBlogUser",
         JSON.stringify(loggedUser)
       );
+
+      setSuccessMessage(`Welcome ${loggedUser.name}`);
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Error logging in:", error);
+
+      setErrorMessage(`Error: ${error.message}`);
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   };
 
@@ -74,16 +84,28 @@ const App = () => {
       const savedBlog = await blogService.create(blogObject);
       setBlogs(blogs.concat(savedBlog));
       setNewBlog({ title: "", author: "", url: "" });
+
+      setSuccessMessage(
+        `Successfully created ${savedBlog.title} by ${savedBlog.author}`
+      );
+      setTimeout(() => setSuccessMessage(""), 3000);
     } catch (error) {
       console.error("Error creating blog:", error);
+      setErrorMessage(`Error: ${error.message}`);
+      setTimeout(() => setErrorMessage(""), 3000);
     }
   };
 
   return (
     <div>
+      {successMessage && (
+        <Notification message={successMessage} type="success" />
+      )}
+      {errorMessage && <Notification message={errorMessage} type="error" />}
       {user ? (
         <>
           <h2>Blogs</h2>
+
           <p>
             {user.name} logged in{" "}
             <button onClick={logoutHandler}>Logout</button>
