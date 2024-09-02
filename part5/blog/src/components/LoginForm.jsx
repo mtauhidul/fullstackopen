@@ -14,6 +14,7 @@ export default function LoginForm({
         username
         <input
           type="text"
+          data-testid="username"
           value={username}
           onChange={({ target }) => setUsername(target.value)}
         />
@@ -21,11 +22,12 @@ export default function LoginForm({
         password
         <input
           type="password"
+          data-testid="password"
           value={password}
           onChange={({ target }) => setPassword(target.value)}
         />
         <br />
-        <button type="submit">Submit</button>
+        <button type="submit">Log in</button>
       </form>
     </div>
   );

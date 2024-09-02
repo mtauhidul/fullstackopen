@@ -13,7 +13,7 @@ const Blog = ({ blog, likesHandler, deleteHandler }) => {
   console.log(blog);
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} data-testid="blog">
       {blog.title} by {blog.author}
       <Togglable buttonLabelShow="view details" buttonLabelHide="hide details">
         <BlogDetails
