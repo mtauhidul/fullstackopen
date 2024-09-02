@@ -7,7 +7,10 @@ export default function BlogDetails({ blog, likesHandler, deleteHandler }) {
     <div>
       <p>{url}</p>
       <p>
-        {likes} likes <button onClick={() => likesHandler(blog)}>like</button>
+        {likes} likes{" "}
+        <button id="likeButton" onClick={() => likesHandler(blog)}>
+          like
+        </button>
       </p>
       <strong>{blog.user.name}</strong>
       <br />

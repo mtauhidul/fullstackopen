@@ -20,6 +20,7 @@ export default function BlogForm({ createNewBlog }) {
         <input
           type="text"
           name="title"
+          data-testid="title"
           value={newBlog.title}
           onChange={({ target }) =>
             setNewBlog({ ...newBlog, title: target.value })
@@ -30,6 +31,7 @@ export default function BlogForm({ createNewBlog }) {
         <input
           type="text"
           name="author"
+          data-testid="author"
           value={newBlog.author}
           onChange={({ target }) =>
             setNewBlog({ ...newBlog, author: target.value })
@@ -40,6 +42,7 @@ export default function BlogForm({ createNewBlog }) {
         <input
           type="text"
           name="url"
+          data-testid="url"
           value={newBlog.url}
           onChange={({ target }) =>
             setNewBlog({ ...newBlog, url: target.value })
