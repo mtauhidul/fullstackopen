@@ -9,6 +9,9 @@ const Blog = ({ blog, likesHandler, deleteHandler }) => {
     borderWidth: 1,
     marginBottom: 5,
   };
+
+  console.log(blog);
+
   return (
     <div style={blogStyle}>
       {blog.title} by {blog.author}
