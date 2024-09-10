@@ -2,14 +2,24 @@ import { useDispatch, useSelector } from "react-redux";
 import { vote } from "../reducers/anecdoteReducer";
 
 export default function AnecdoteList() {
-  const anecdotes = useSelector((state) => state).sort(
+  const filter = useSelector((state) => state.filter);
+  const list = useSelector((state) => state.anecdotes).sort(
     (a, b) => b.votes - a.votes
   );
+
+  const anecdotes =
+    filter && filter !== "ALL"
+      ? list.filter((anecdote) =>
+          anecdote.content.toLowerCase().includes(filter.toLowerCase())
+        )
+      : list;
+
   const dispatch = useDispatch();
 
   const doVote = (id) => {
     dispatch(vote(id));
   };
+
   return (
     <div>
       {anecdotes.map((anecdote) => (
