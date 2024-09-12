@@ -1,60 +1,91 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import axios from "axios";
+import React, { useEffect, useState } from "react";
 
 const useField = (type) => {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState("");
 
   const onChange = (event) => {
-    setValue(event.target.value)
-  }
+    setValue(event.target.value);
+  };
 
   return {
     type,
     value,
-    onChange
-  }
-}
+    onChange,
+  };
+};
 
 const useCountry = (name) => {
-  const [country, setCountry] = useState(null)
+  const [country, setCountry] = useState(null);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {})
+  const getInfo = async () => {
+    if (!name) return;
 
-  return country
-}
+    const baseURL = "https://studies.cs.helsinki.fi/restcountries/api/name";
+
+    try {
+      const response = await axios.get(`${baseURL}/${name}`);
+      setCountry(response.data);
+      setError(null);
+    } catch (err) {
+      setError("Country not found");
+      setCountry(null);
+    }
+  };
+
+  useEffect(() => {
+    getInfo();
+  }, [name]);
+
+  return {
+    data: country
+      ? {
+          name: country.name?.common || "Unknown",
+          capital: country.capital?.[0] || "Unknown",
+          population: country.population || "Unknown",
+          flag: country.flags?.png || "",
+        }
+      : null,
+    error,
+    found: !!country && !error,
+  };
+};
 
 const Country = ({ country }) => {
   if (!country) {
-    return null
+    return null;
   }
 
   if (!country.found) {
-    return (
-      <div>
-        not found...
-      </div>
-    )
+    return <div>not found...</div>;
   }
 
   return (
     <div>
       <h3>{country.data.name} </h3>
       <div>capital {country.data.capital} </div>
-      <div>population {country.data.population}</div> 
-      <img src={country.data.flag} height='100' alt={`flag of ${country.data.name}`}/>  
+      <div>population {country.data.population}</div>
+      <img
+        src={country.data.flag}
+        height="100"
+        alt={`flag of ${country.data.name}`}
+      />
     </div>
-  )
-}
+  );
+};
 
 const App = () => {
-  const nameInput = useField('text')
-  const [name, setName] = useState('')
-  const country = useCountry(name)
+  const nameInput = useField("text");
+  const [name, setName] = useState("");
+  const country = useCountry(name);
 
   const fetch = (e) => {
-    e.preventDefault()
-    setName(nameInput.value)
-  }
+    e.preventDefault();
+    setName(nameInput.value);
+  };
+
+  console.log(country);
 
   return (
     <div>
@@ -65,7 +96,7 @@ const App = () => {
 
       <Country country={country} />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
