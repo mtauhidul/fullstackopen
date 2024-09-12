@@ -3,6 +3,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 import { Link, Route, Routes, useMatch, useNavigate } from "react-router-dom";
+import { useField } from "./hooks";
 
 const Menu = () => {
   const padding = {
@@ -81,49 +82,50 @@ const Footer = () => (
 );
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState("");
-  const [author, setAuthor] = useState("");
-  const [info, setInfo] = useState("");
+  const content = useField("text");
+  const author = useField("text");
+  const info = useField("text");
+
+  // Extract the reset function separately from other input properties
+  const { reset: resetContent, ...contentInput } = content;
+  const { reset: resetAuthor, ...authorInput } = author;
+  const { reset: resetInfo, ...infoInput } = info;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0,
     });
   };
 
+  const resetAllFields = (e) => {
+    e.preventDefault();
+    resetContent();
+    resetAuthor();
+    resetInfo();
+  };
+
   return (
     <div>
-      <h2>create a new anecdote</h2>
+      <h2>Create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
+          <input {...contentInput} />
         </div>
         <div>
           author
-          <input
-            name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
+          <input {...authorInput} />
         </div>
         <div>
           url for more info
-          <input
-            name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
-          />
+          <input {...infoInput} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button onClick={resetAllFields}>reset</button>
       </form>
     </div>
   );
